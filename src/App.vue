@@ -1,18 +1,44 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div id="app" style="width: 50%">
+      <ChatMessages v-bind:chatMessages="chatMessagesList"/>
+      <form @submit.prevent="submitForm">
+        <input  v-model="message" placeholder="add multiple lines"/>
+        <input type="submit"  value="Submit"/>
+      </form>
+      
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import ChatMessages from './components/ChatMessages.vue'
 
 export default {
   name: 'App',
+
   components: {
-    HelloWorld
-  }
+      ChatMessages
+  },
+
+  data: ()=>({
+    message: '',
+
+    chatMessagesList: [
+      {
+        content: 'Hello'
+      },
+      {
+        content: 'How are you?'
+      }
+    ]
+  }),
+
+  methods: {
+    submitForm(){
+      console.log("Form submited", this.message )
+    }
+  },
+
+  
 }
 </script>
 
