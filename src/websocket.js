@@ -1,9 +1,10 @@
-const HOST_URL = "http://127.0.0.1:8000";
+// const HOST_URL = "http://127.0.0.1:8000";
 const SOCKET_URL = "ws://127.0.0.1:8000";
 
 class WebSocketService {
     static instance = null;
     callbacks = {};
+    jsonMessagesData = {}
   
     static getInstance() {
       if (!WebSocketService.instance) {
@@ -13,12 +14,13 @@ class WebSocketService {
     }
   
     constructor() {
-      this.socketRef = null;
+      this.socketRef = new WebSocket("ws://127.0.0.1:8000/ws/chat/vuewebsocket/");//null
     }
   
     connect(chatUrl) {
       const path = `${SOCKET_URL}/ws/chat/${chatUrl}/`;
-      this.socketRef = new WebSocket(path);
+      console.log("the path is: ",path)
+      this.socketRef = new WebSocket("ws://127.0.0.1:8000/ws/chat/vuewebsocket/");
       this.socketRef.onopen = () => {
         console.log("WebSocket open");
       };
@@ -34,6 +36,10 @@ class WebSocketService {
         this.connect();
       };
     }
+
+    retrievedMessages(){
+        return this.jsonMessagesData;
+    }
   
     disconnect() {
       this.socketRef.close();
@@ -41,12 +47,16 @@ class WebSocketService {
   
     socketNewMessage(data) {
       const parsedData = JSON.parse(data);
+    
+      this.jsonMessagesData = parsedData
+        // console.log("websocket messages: ", this.jsonMessagesData)
       const command = parsedData.command;
       if (Object.keys(this.callbacks).length === 0) {
         return;
       }
       if (command === "messages") {
         this.callbacks[command](parsedData.chat_messages);
+        console.log("the callback: ",this.callbacks)
       }
       if (command === "new_message") {
         this.callbacks[command](parsedData.chat_message);
@@ -62,6 +72,7 @@ class WebSocketService {
     }
   
     newChatMessage(message) {
+        console.log("message to be sent: ",message)
       this.sendMessage({
         command: "new_message",
         from: message.from,
